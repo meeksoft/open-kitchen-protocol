@@ -160,11 +160,35 @@ Add to `.vscode/settings.json` for auto-complete:
 
 ## Validation
 
-Validate OKP files against the JSON schema:
+### Built-in Validator
+
+OKP includes validator scripts in `tools/`:
+
+```bash
+# Python validator
+pip install pyyaml jsonschema        # Install dependencies
+./tools/okp-validate open-kitchen.yaml
+
+# Node.js validator
+npm install yaml ajv                 # Install dependencies
+node tools/okp-validate.js open-kitchen.yaml
+
+# Generate starter template
+./tools/okp-validate --init > my-kitchen.yaml
+
+# Validate multiple files
+./tools/okp-validate examples/*.yaml
+```
+
+### Using External Tools
 
 ```bash
 # Using ajv-cli
 npx ajv validate -s schemas/okp.schema.json -d open-kitchen.yaml
+
+# Using check-jsonschema
+pip install check-jsonschema
+check-jsonschema --schemafile schemas/okp.schema.json open-kitchen.yaml
 
 # Using HeyChef
 heychef okp validate open-kitchen.yaml

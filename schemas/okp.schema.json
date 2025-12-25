@@ -72,16 +72,14 @@
         },
         "role": {
           "type": "string",
-          "enum": ["planner", "team_lead", "worker", "critic", "flex"],
-          "description": "Agent's role in the workflow"
+          "description": "Agent's role in the workflow (e.g., planner, team_lead, worker, critic, flex, review, implementation, general)"
         },
         "capabilities": {
           "type": "array",
           "items": {
-            "type": "string",
-            "enum": ["decomposition", "coding", "testing", "documentation", "code-review", "architecture", "debugging", "security-review", "quality-control"]
+            "type": "string"
           },
-          "description": "List of agent capabilities"
+          "description": "List of agent capabilities (e.g., decomposition, coding, testing, documentation, code-review, architecture)"
         },
         "rate_limit": {
           "type": "object",

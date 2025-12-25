@@ -102,6 +102,62 @@ OKP configuration files use these conventions:
 | `okp.yaml` | Short alias |
 | `.okp.yaml` | Hidden configuration |
 
+## Language Bindings
+
+OKP is **language-agnostic**. Use any JSON Schema validator:
+
+### Python
+```python
+import jsonschema
+import yaml
+
+schema = json.load(open("okp.schema.json"))
+config = yaml.safe_load(open("open-kitchen.yaml"))
+jsonschema.validate(config, schema)
+```
+
+### JavaScript/TypeScript
+```javascript
+import Ajv from "ajv";
+import schema from "./okp.schema.json";
+
+const ajv = new Ajv();
+const validate = ajv.compile(schema);
+const valid = validate(config);
+```
+
+### Go
+```go
+import "github.com/xeipuuv/gojsonschema"
+
+schemaLoader := gojsonschema.NewReferenceLoader("file://okp.schema.json")
+documentLoader := gojsonschema.NewReferenceLoader("file://open-kitchen.yaml")
+result, _ := gojsonschema.Validate(schemaLoader, documentLoader)
+```
+
+### CLI Tools
+```bash
+# Node.js (ajv-cli)
+npx ajv validate -s schemas/okp.schema.json -d open-kitchen.yaml
+
+# Python (check-jsonschema)
+pip install check-jsonschema
+check-jsonschema --schemafile okp.schema.json open-kitchen.yaml
+
+# HeyChef (reference implementation)
+heychef okp validate open-kitchen.yaml
+```
+
+### Editor Support
+Add to `.vscode/settings.json` for auto-complete:
+```json
+{
+  "yaml.schemas": {
+    "https://raw.githubusercontent.com/dimmoro/open-kitchen-protocol/main/schemas/okp.schema.json": ["*open-kitchen.yaml", "okp.yaml"]
+  }
+}
+```
+
 ## Validation
 
 Validate OKP files against the JSON schema:

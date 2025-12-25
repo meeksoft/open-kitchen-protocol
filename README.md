@@ -4,17 +4,31 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![OKP Version](https://img.shields.io/badge/OKP-1.0-blue.svg)](spec/OKP_SPEC.md)
+[![JSON Schema](https://img.shields.io/badge/JSON%20Schema-2020--12-green.svg)](schemas/okp.schema.json)
 
 ---
 
+> *"The industry-standard specification for multi-agent AI orchestration."*
+
 ## What is OKP?
 
-Open Kitchen Protocol (OKP) is a vendor-neutral specification for defining how AI agents coordinate to complete complex tasks. It provides a portable format for:
+Open Kitchen Protocol (OKP) is a **vendor-neutral, language-agnostic** specification for defining how AI agents coordinate to complete complex tasks. Like OpenAPI defines REST APIs and JSON Schema defines data structures, OKP defines multi-agent workflows.
 
-- **Agent definitions** - Who does the work
-- **Workflows** - How tasks flow between agents
-- **Handoffs** - How context transfers between agents
-- **Task backends** - Where work items are tracked
+### Key Benefits
+
+| Benefit | Description |
+|---------|-------------|
+| **Portable** | Move configurations between tools without rewriting |
+| **Versionable** | Track workflow changes in Git like code |
+| **Validatable** | Catch errors before runtime with JSON Schema |
+| **Extensible** | Add tool-specific features without breaking compatibility |
+
+### What OKP Defines
+
+- **Agents** - AI models and their roles
+- **Workflows** - Task execution order and dependencies
+- **Handoffs** - Context transfer between agents
+- **Task Backends** - Integration with issue trackers
 
 ## Quick Start
 
@@ -53,9 +67,12 @@ handoff:
 
 | Document | Description |
 |----------|-------------|
+| [Quick Start](docs/QUICK_START.md) | Get started in 5 minutes |
 | [OKP Specification](spec/OKP_SPEC.md) | Complete protocol specification |
+| [Adopter's Guide](docs/ADOPTERS_GUIDE.md) | Implement OKP in your tool |
 | [JSON Schema](schemas/okp.schema.json) | Machine-readable schema for validation |
 | [Examples](examples/) | Sample OKP configuration files |
+| [Changelog](CHANGELOG.md) | Version history and changes |
 
 ## Core Concepts
 
@@ -88,9 +105,11 @@ OKP supports multiple task tracking systems:
 
 ## Implementations
 
-| Tool | Status | Description |
-|------|--------|-------------|
-| [HeyChef](https://github.com/dimmoro/HeyChef) | Reference | Multi-agent kitchen orchestrator |
+| Tool | Language | Status | Description |
+|------|----------|--------|-------------|
+| [HeyChef](https://github.com/dimmoro/HeyChef) | Go | Reference | Multi-agent kitchen orchestrator |
+
+*Want to add your implementation? See [Adopter's Guide](docs/ADOPTERS_GUIDE.md) and submit a PR!*
 
 ## File Naming
 

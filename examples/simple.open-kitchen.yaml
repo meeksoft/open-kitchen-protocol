@@ -1,0 +1,15 @@
+# Open Kitchen Protocol - Simple Example
+# A minimal single-agent configuration
+
+okp: "1.0"
+
+agents:
+  - id: assistant
+    provider: anthropic
+    model: claude-sonnet-4-20250514
+    role: general
+
+workflow:
+  - id: task
+    agent: assistant
+    action: execute

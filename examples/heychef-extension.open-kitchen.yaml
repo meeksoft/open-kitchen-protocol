@@ -1,0 +1,111 @@
+# Open Kitchen Protocol - HeyChef Extension Example
+# Demonstrates OKP with HeyChef-specific extensions
+
+okp: "1.0"
+
+agents:
+  - id: lead_planner
+    provider: anthropic
+    model: claude-sonnet-4-20250514
+    role: planner
+    capabilities:
+      - decomposition
+      - architecture
+    
+  - id: main_worker
+    provider: openai
+    model: gpt-4
+    role: worker
+    capabilities:
+      - coding
+      - testing
+    
+  - id: lead_reviewer
+    provider: google
+    model: gemini-pro
+    role: team_lead
+    capabilities:
+      - code-review
+
+  - id: code_critic
+    provider: anthropic
+    model: claude-sonnet-4-20250514
+    role: critic
+    capabilities:
+      - code-review
+      - security-review
+      - quality-control
+
+workflow:
+  - id: plan_order
+    agent: lead_planner
+    action: decompose
+    outputs:
+      - execution_plan
+    
+  - id: execute_order
+    agent: main_worker
+    action: execute
+    depends_on:
+      - plan_order
+    inputs:
+      plan: ${{ steps.plan_order.outputs.execution_plan }}
+    outputs:
+      - deliverable
+    
+  - id: review_work
+    agent: lead_reviewer
+    action: review
+    depends_on:
+      - execute_order
+    inputs:
+      work: ${{ steps.execute_order.outputs.deliverable }}
+
+  - id: critique_work
+    agent: code_critic
+    action: review
+    depends_on:
+      - review_work
+    inputs:
+      work: ${{ steps.execute_order.outputs.deliverable }}
+    outputs:
+      - critique_feedback
+
+handoff:
+  mode: auto
+  require_context: true
+  fields:
+    - what_done
+    - what_pending
+    - blockers
+    - notes
+  notification:
+    enabled: true
+    channels:
+      - agent_mail
+
+context:
+  max_size: "50KB"
+  transfer_mode: full
+  persistence: session
+
+task_backend: beads
+task_backend_config:
+  project: "my-kitchen"
+  auto_create: true
+  sync_status: true
+
+# HeyChef-specific extensions
+extensions:
+  heychef:
+    kitchen_name: "Production Kitchen"
+    roles:
+      planner: lead_planner
+      team_lead: lead_reviewer
+      worker: main_worker
+      critic: code_critic
+    flair_enabled: true
+    beads_dir: ".beads"
+    agent_mail:
+      auto_start: true
+      port: 8089

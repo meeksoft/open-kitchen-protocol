@@ -1,0 +1,259 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openkitchen.dev/schema/v1.0/okp.schema.json",
+  "title": "Open Kitchen Protocol",
+  "description": "Schema for Open Kitchen Protocol (OKP) - Multi-Agent Orchestration Standard",
+  "type": "object",
+  "required": ["okp", "agents", "workflow"],
+  "properties": {
+    "okp": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$",
+      "description": "OKP specification version (e.g., '1.0')"
+    },
+    "agents": {
+      "type": "array",
+      "minItems": 1,
+      "description": "List of agent definitions",
+      "items": {
+        "$ref": "#/$defs/agent"
+      }
+    },
+    "workflow": {
+      "type": "array",
+      "minItems": 1,
+      "description": "List of workflow steps",
+      "items": {
+        "$ref": "#/$defs/workflowStep"
+      }
+    },
+    "handoff": {
+      "$ref": "#/$defs/handoff"
+    },
+    "context": {
+      "$ref": "#/$defs/context"
+    },
+    "task_backend": {
+      "type": "string",
+      "enum": ["beads", "github", "jira", "linear", "none"],
+      "description": "Task management backend"
+    },
+    "task_backend_config": {
+      "type": "object",
+      "description": "Backend-specific configuration",
+      "additionalProperties": true
+    },
+    "extensions": {
+      "type": "object",
+      "description": "Vendor-specific extensions",
+      "additionalProperties": {
+        "type": "object"
+      }
+    }
+  },
+  "$defs": {
+    "agent": {
+      "type": "object",
+      "required": ["id", "provider", "role"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-zA-Z_][a-zA-Z0-9_-]*$",
+          "description": "Unique identifier for the agent"
+        },
+        "provider": {
+          "type": "string",
+          "enum": ["anthropic", "openai", "google", "github", "local", "custom"],
+          "description": "AI provider"
+        },
+        "model": {
+          "type": "string",
+          "description": "Specific model name"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["planner", "team_lead", "worker", "critic", "flex"],
+          "description": "Agent's role in the workflow"
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["decomposition", "coding", "testing", "documentation", "code-review", "architecture", "debugging", "security-review", "quality-control"]
+          },
+          "description": "List of agent capabilities"
+        },
+        "rate_limit": {
+          "type": "object",
+          "properties": {
+            "requests_per_minute": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "tokens_per_day": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "cooldown_seconds": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Additional agent metadata"
+        }
+      }
+    },
+    "workflowStep": {
+      "type": "object",
+      "required": ["id", "agent", "action"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-zA-Z_][a-zA-Z0-9_-]*$",
+          "description": "Unique step identifier"
+        },
+        "agent": {
+          "type": "string",
+          "description": "Reference to agent ID"
+        },
+        "action": {
+          "type": "string",
+          "enum": ["decompose", "execute", "review", "test", "document", "merge", "approve"],
+          "description": "Action to perform"
+        },
+        "depends_on": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Step dependencies (step IDs)"
+        },
+        "inputs": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Input mappings from other steps"
+        },
+        "outputs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Output names produced by this step"
+        },
+        "condition": {
+          "type": "string",
+          "description": "Condition for step execution"
+        },
+        "timeout": {
+          "type": "string",
+          "pattern": "^[0-9]+[smh]$",
+          "description": "Step timeout (e.g., '30m', '1h')"
+        },
+        "retry": {
+          "type": "object",
+          "properties": {
+            "max_attempts": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10
+            },
+            "backoff": {
+              "type": "string",
+              "enum": ["constant", "linear", "exponential"]
+            }
+          }
+        },
+        "on_success": {
+          "type": "string",
+          "description": "Step to execute on success"
+        },
+        "on_failure": {
+          "type": "string",
+          "description": "Step to execute on failure"
+        }
+      }
+    },
+    "handoff": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["auto", "manual", "hybrid"],
+          "description": "Handoff mode"
+        },
+        "require_context": {
+          "type": "boolean",
+          "default": false,
+          "description": "Require context transfer on handoff"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["what_done", "what_pending", "blockers", "notes"]
+          },
+          "description": "Required handoff fields"
+        },
+        "timeout": {
+          "type": "string",
+          "pattern": "^[0-9]+[smh]$",
+          "description": "Handoff timeout"
+        },
+        "notification": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "channels": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "context": {
+      "type": "object",
+      "properties": {
+        "max_size": {
+          "type": "string",
+          "pattern": "^[0-9]+(KB|MB)$",
+          "description": "Maximum context size"
+        },
+        "transfer_mode": {
+          "type": "string",
+          "enum": ["full", "summary", "selective"],
+          "description": "How context is transferred"
+        },
+        "persistence": {
+          "type": "string",
+          "enum": ["none", "session", "permanent"],
+          "description": "Context persistence level"
+        },
+        "includes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Fields to always include"
+        },
+        "excludes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Fields to never include"
+        }
+      }
+    }
+  }
+}

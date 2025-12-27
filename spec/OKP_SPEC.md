@@ -203,17 +203,36 @@ Implementations MAY support additional providers.
 
 | Role | Description |
 |------|-------------|
-| `planning` | Decomposes tasks, creates plans |
-| `implementation` | Executes code, creates content |
-| `review` | Reviews work, provides feedback |
-| `critique` | Heavy negative feedback, finds flaws and security issues |
-| `testing` | Tests implementations |
-| `documentation` | Creates documentation |
-| `general` | General-purpose agent |
+| `planner` | Decomposes tasks, creates plans, coordinates work |
+| `team_lead` | Reviews work, coordinates handoffs, manages workers |
+| `worker` | Executes tasks, writes code, creates content |
+| `critic` | Heavy negative feedback, finds flaws and security issues |
 
 Implementations MAY define additional roles.
 
-### 5.5 Capabilities
+### 5.5 Worker Pools
+
+Agents can be configured as pools for parallel execution:
+
+```yaml
+agents:
+  - id: worker-pool
+    provider: github
+    model: copilot
+    role: worker
+    pool:
+      min_instances: 1
+      max_instances: 5
+      auto_scale: true
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `min_instances` | integer | Minimum concurrent instances (default: 1) |
+| `max_instances` | integer | Maximum concurrent instances (default: 1) |
+| `auto_scale` | boolean | Allow dynamic scaling (default: false) |
+
+### 5.6 Capabilities
 
 Capabilities describe what an agent can do:
 
@@ -529,7 +548,7 @@ agents:
   - id: assistant
     provider: anthropic
     model: claude-sonnet-4-20250514
-    role: general
+    role: worker
 
 workflow:
   - id: task
@@ -546,19 +565,21 @@ agents:
   - id: planner
     provider: anthropic
     model: claude-sonnet-4-20250514
-    role: planning
+    role: planner
     capabilities: [decomposition, architecture]
     
   - id: coder
     provider: openai
     model: gpt-4
-    role: implementation
+    role: worker
     capabilities: [coding, testing]
+    pool:
+      max_instances: 3
     
   - id: reviewer
     provider: google
     model: gemini-pro
-    role: review
+    role: critic
     capabilities: [code-review]
 
 workflow:
@@ -601,7 +622,7 @@ agents:
   - id: head_chef
     provider: anthropic
     model: claude-sonnet-4-20250514
-    role: planning
+    role: planner
 
 workflow:
   - id: plan
@@ -611,7 +632,6 @@ workflow:
 extensions:
   heychef:
     kitchen_name: "Production Kitchen"
-    station: head
     flair_enabled: true
 ```
 
